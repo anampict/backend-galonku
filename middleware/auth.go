@@ -66,3 +66,25 @@ func AuthMiddleware() gin.HandlerFunc {
 		ctx.Next()
 	}
 }
+
+// Middleware untuk memeriksa apakah user adalah admin
+
+func AdminOnly() gin.HandlerFunc {
+    return func(c *gin.Context) {
+        roleInterface, exists := c.Get("role")
+        if !exists {
+            c.JSON(http.StatusForbidden, gin.H{"error": "Role tidak ditemukan"})
+            c.Abort()
+            return
+        }
+
+        role, ok := roleInterface.(string)
+        if !ok || role != "admin" {
+            c.JSON(http.StatusForbidden, gin.H{"error": "Hanya admin yang boleh mengakses"})
+            c.Abort()
+            return
+        }
+
+        c.Next()
+    }
+}
