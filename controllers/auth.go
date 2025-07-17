@@ -28,7 +28,7 @@ func RegisterUser(c *gin.Context) {
 	defer cancel()
 
 	var existingUser models.User
-	err := userCollection.FindOne(ctx, gin.H{"email": input.Email}).Decode(&existingUser)
+	err := userCollection.FindOne(ctx, bson.M{"email": input.Email}).Decode(&existingUser)
 	if err == nil {
 		c.JSON(http.StatusBadRequest, gin.H{"error": "email sudah terdaftar"})
 		return
@@ -56,7 +56,11 @@ func RegisterUser(c *gin.Context) {
 		return
 	}
 
-	c.JSON(http.StatusCreated, gin.H{"message": "user berhasil dibuat", "user": newUser})
+	c.JSON(http.StatusCreated, gin.H{"message": "user berhasil dibuat", "user": gin.H{
+		"email": newUser.Email,
+		"role":  newUser.Role,
+	},
+})
 
 }
 
@@ -102,7 +106,11 @@ func LoginUser(c *gin.Context) {
 	}
 
 	 // Kirim response ke user berupa token dan role
-	c.JSON(http.StatusOK, gin.H{"message": "login berhasil", "token": token, "user": user})
+	c.JSON(http.StatusOK, gin.H{"message": "login berhasil", "token": token, "user": gin.H{
+		"email": user.Email,
+		"role":  user.Role,
+	},
+})
 }
 
 
