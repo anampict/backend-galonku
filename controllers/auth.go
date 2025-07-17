@@ -3,6 +3,7 @@ package controllers
 import (
 	"backendGalonku/config"
 	"backendGalonku/models"
+	"backendGalonku/utils"
 	"context"
 	"net/http"
 	"time"
@@ -32,11 +33,19 @@ func RegisterUser(c *gin.Context) {
 		return
 	}
 
+	// hash password sebelum disimpan
+	hashedPassword, err := utils.HashPassword(input.Password)
+	if  err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "gagal mengenkripsi password"})
+		return
+		
+	}
+
 	// buat user baru
 	newUser := models.User{
 		ID:       primitive.NewObjectID(),
 		Email:    input.Email,
-		Password: input.Password, // pastikan password di-hash sebelum disimpan
+		Password: hashedPassword, // pastikan password di-hash sebelum disimpan
 		Role:     "user", // default role
 	}
 
