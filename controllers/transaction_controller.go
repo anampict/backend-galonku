@@ -75,3 +75,56 @@ func CreateTransaction(c *gin.Context) {
 
 	c.JSON(http.StatusOK, gin.H{"message": "Transaction created", "data": transaction})
 }
+
+// Fungsi untuk mendapatkan semua transaksi
+
+func GetAllTransactions(c *gin.Context) {
+	cursor, err := getTransactionCollection().Find(context.TODO(), bson.M{})
+
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "gagal ambil data transaksi"})
+		return
+	}
+
+	defer cursor.Close(context.TODO())
+
+	var transactions []models.Transaction
+
+	if err = cursor.All(context.TODO(), &transactions); err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "gagal decode transaksi"})
+		return
+		
+	}
+	c.JSON(http.StatusOK, gin.H{"message": "berhasil mendapatkan transaksi", "transactions": transactions})
+
+
+}
+
+// fungsi get transaksi berdasarkan ID
+
+func GetTransactionByID(c *gin.Context) {
+	userIDStr := c.Param("user_id")
+	userID, err := primitive.ObjectIDFromHex(userIDStr)
+
+	if err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "ID tidak valid"})
+		return
+	}
+
+	filter := bson.M{"user_id": userID}
+	cursor,err := getTransactionCollection().Find(context.TODO(), filter)
+
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "gagal mendapatkan transaksi"})
+		return
+
+	}
+	defer cursor.Close(context.TODO())
+
+	var transactions []models.Transaction
+	if err = cursor.All(context.TODO(), &transactions); err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "gagal decode transaksi"})
+		return
+	}
+	c.JSON(http.StatusOK, gin.H{"message": "berhasil mendapatkan transaksi id tersebut", "transactions": transactions})
+}
