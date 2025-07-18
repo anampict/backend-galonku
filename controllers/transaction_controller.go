@@ -128,3 +128,31 @@ func GetTransactionByID(c *gin.Context) {
 	}
 	c.JSON(http.StatusOK, gin.H{"message": "berhasil mendapatkan transaksi id tersebut", "transactions": transactions})
 }
+
+// fungsi untuk mengupdate status transaksi berdasarkan ID
+
+func UpdateTransactionStatus(c *gin.Context) {
+	id := c.Param("id")
+	transactionID, err := primitive.ObjectIDFromHex(id)
+	if err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "ID tidak valid"})
+		return
+	}
+
+	var req struct {
+		Status string `json:"status"`
+	}
+	if err := c.ShouldBindJSON(&req); err != nil || req.Status == "" {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "invalid status"})
+		return
+	}
+
+	update := bson.M{"$set": bson.M{"status": req.Status}}
+	_,err = getTransactionCollection().UpdateOne(context.TODO(), bson.M{"_id": transactionID}, update)
+	
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "gagal mengupdate status transaksi"})
+		return
+	}
+	c.JSON(http.StatusOK, gin.H{"message": "Status transaksi berhasil diupdate"})
+}
