@@ -83,3 +83,36 @@ func DeleteProduct(c *gin.Context) {
 		return
 	}
 }
+
+// fungsi untuk mengupdate produk berdasarkan ID
+
+func UpdateProduct(c *gin.Context) {
+	id := c.Param("id")
+	objID, err := primitive.ObjectIDFromHex(id)
+
+	if err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "ID tidak valid"})
+		return
+	}
+
+	var updatedProduct models.Product
+	if err := c.BindJSON(&updatedProduct); err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid input"})
+		return
+	}
+
+	update := bson.M{
+		"$set": bson.M{
+			"name":        updatedProduct.Name,
+			"price":       updatedProduct.Price,
+			"stock":       updatedProduct.Stock,
+			"description": updatedProduct.Description,
+		},
+	}
+
+	_, err = productCollection.UpdateOne(context.TODO(), bson.M{"_id": objID}, update)
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "gagal mengupdate produk"})
+		return
+	}
+}
