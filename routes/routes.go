@@ -19,6 +19,10 @@ func SetupRoutes(router *gin.Engine) {
 
 		// Tambahkan route untuk transaksi
 		api.POST("/transactions", controllers.CreateTransaction)
+		api.GET("/transactions", controllers.GetAllTransactions)
+		api.GET("/transactions/user/:user_id", controllers.GetTransactionByID)
+		api.PUT("/transactions/:id/status", controllers.UpdateTransactionStatus)
+		api.DELETE("/transactions/:id", controllers.DeleteTransaction)
 	}
 
 }
