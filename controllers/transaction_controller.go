@@ -156,3 +156,25 @@ func UpdateTransactionStatus(c *gin.Context) {
 	}
 	c.JSON(http.StatusOK, gin.H{"message": "Status transaksi berhasil diupdate"})
 }
+
+
+//fungsi delate transaksi berdasarkan ID\
+
+func DeleteTransaction(c *gin.Context) {
+	id := c.Param("id")
+	transactionID, err := primitive.ObjectIDFromHex(id)
+	if err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "ID tidak valid"})
+		return
+	}
+
+	_, err = getTransactionCollection().DeleteOne(context.TODO(), bson.M{"_id": transactionID})
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "gagal menghapus transaksi"})
+		return
+	}
+
+	c.JSON(http.StatusOK, gin.H{"message": "Transaksi berhasil dihapus"})
+}
+
+
