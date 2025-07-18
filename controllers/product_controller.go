@@ -14,7 +14,11 @@ import (
 )
 
 //inisiasi collection dari mongo db
-var productCollection *mongo.Collection = config.DB.Collection("products")
+func getProductCollection() *mongo.Collection {
+    collection := config.DB.Collection("products")
+    return collection
+}
+
 
 //fungsi untuk membuat produk baru
 
@@ -30,7 +34,7 @@ func CreateProduct(c *gin.Context) {
 	product.CreatedAt = time.Now() //set waktu dibuat
 
 	//simpan ke database
-	_, err := productCollection.InsertOne(c.Request.Context(), product)
+	_, err := getProductCollection().InsertOne(c.Request.Context(), product)
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": "gagal menambahkan produk"})
 		return
@@ -45,7 +49,7 @@ func CreateProduct(c *gin.Context) {
 func GetAllProducts(c *gin.Context) {
 	var products[]models.Product
 
-	cursor, err := productCollection.Find(context.TODO(),bson.M{})
+	cursor, err := getProductCollection().Find(context.TODO(), bson.M{})
 
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": "gagal mendapatkan produk"})
@@ -77,11 +81,12 @@ func DeleteProduct(c *gin.Context) {
 		return
 	}
 
-	_, err = productCollection.DeleteOne(context.TODO(), bson.M{"_id": objID})
+	_, err = getProductCollection().DeleteOne(context.TODO(), bson.M{"_id": objID})
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": "gagal menghapus produk"})
 		return
 	}
+	c.JSON(http.StatusOK, gin.H{"message": "Produk berhasil dihapus"})
 }
 
 // fungsi untuk mengupdate produk berdasarkan ID
@@ -110,9 +115,11 @@ func UpdateProduct(c *gin.Context) {
 		},
 	}
 
-	_, err = productCollection.UpdateOne(context.TODO(), bson.M{"_id": objID}, update)
+	_, err = getProductCollection().UpdateOne(context.TODO(), bson.M{"_id": objID}, update)
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": "gagal mengupdate produk"})
 		return
 	}
+
+	c.JSON(http.StatusOK, gin.H{"message": "Produk berhasil diupdate"})
 }
