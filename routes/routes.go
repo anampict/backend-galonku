@@ -10,6 +10,7 @@ func SetupRoutes(router *gin.Engine) {
 	api := router.Group("/api")
 	{
 		api.POST("/register", controllers.RegisterUser)
+		api.POST("/login", controllers.LoginUser)
 		
 		// Tambahkan route untuk produk
 		api.POST("/products", controllers.CreateProduct)

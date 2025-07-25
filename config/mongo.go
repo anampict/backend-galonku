@@ -14,8 +14,13 @@ import (
 var DB *mongo.Database
 
 func ConnectDB() {
+	mongoURI := os.Getenv("MONGODB_URI") //  Ambil dari environment variable
+	if mongoURI == "" {
+		log.Fatal("Environment variable MONGODB_URI belum diatur")
+	}
+
 	clientOptions := options.Client().
-		ApplyURI("mongodb://localhost:27017")
+		ApplyURI(mongoURI)
 
 		ctx,cancel := context.WithTimeout(context.Background(), 10*time.Second)
 	defer cancel()
@@ -33,4 +38,3 @@ func ConnectDB() {
 	DB = client.Database("galonku")
 	fmt.Println("Berhasil connect ke database MongoDB")
 }
-

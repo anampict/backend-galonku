@@ -57,6 +57,7 @@ func RegisterUser(c *gin.Context) {
 	}
 
 	c.JSON(http.StatusCreated, gin.H{"message": "user berhasil dibuat", "user": gin.H{
+		"id":    newUser.ID.Hex(),
 		"email": newUser.Email,
 		"role":  newUser.Role,
 	},
